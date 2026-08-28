@@ -142,4 +142,6 @@ app.post('/api/logs', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Omarchy Habits V1 running on port ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Omarchy Habits V1 running on port ${PORT}`);
+});
