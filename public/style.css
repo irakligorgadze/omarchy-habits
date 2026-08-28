@@ -193,7 +193,7 @@ button { cursor: pointer; }
     justify-content: space-between;
     align-items: center;
     background: var(--surface);
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     border-radius: 8px;
     border: 1px solid var(--border);
     margin-bottom: 0.75rem;
@@ -201,68 +201,107 @@ button { cursor: pointer; }
 
 .mobile-date-nav h2 {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
 }
 
 .mobile-habits-container {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
     padding-bottom: 2rem;
+}
+
+/* Phase Section Groups */
+.mobile-phase-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.mobile-phase-header {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: #ffffff;
+    display: inline-block;
+    align-self: flex-start;
+}
+
+/* Phase Colors for Mobile Headers */
+.m-phase-Sleep { background-color: var(--phase-sleep); }
+.m-phase-Morning { background-color: var(--phase-morning); }
+.m-phase-Middle { background-color: var(--phase-middle); }
+.m-phase-Evening { background-color: var(--phase-evening); }
+
+/* Grid for compact yes/no habits */
+.mobile-grid-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 items side-by-side */
+    gap: 0.4rem;
 }
 
 .mobile-habit-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    padding: 0.5rem 0.6rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.mobile-habit-card.full-width {
+    grid-column: span 2; /* For non-boolean or inputs that need more room */
 }
 
 .mobile-habit-info {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: 0.05rem;
+    overflow: hidden;
 }
 
-.mobile-habit-phase {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.mobile-habit-category {
+    font-size: 0.6rem;
     font-weight: 700;
-    color: #64748b;
+    text-transform: uppercase;
 }
 
 .mobile-habit-name {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mobile-habit-control {
-    min-width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    font-size: 1.1rem;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    font-size: 0.95rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--border);
+    flex-shrink: 0;
 }
 
 /* Automatic view switching via Media Query */
 @media(max-width: 768px) {
     .sheet-wrapper {
-        display: none !important; /* Hide massive grid table on mobile */
+        display: none !important;
     }
     #mobile-view {
-        display: block !important; /* Show mobile focused card view */
+        display: block !important;
     }
     body { padding: 0.4rem; }
     header { flex-direction: row; justify-content: space-between; align-items: center; }
-    #month-select, #year-select { display: none; } /* Clean up header on mobile */
+    #month-select, #year-select { display: none; }
 }
