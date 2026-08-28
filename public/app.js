@@ -102,7 +102,6 @@ function renderMobileView() {
     const currentDStr = dates[mobileSelectedDateIndex];
     titleEl.textContent = formatDateNice(currentDStr);
 
-    // Emojis mapping closely to image_b6d2e4.png style
     const phaseConfig = [
         { name: 'Sleep', emoji: '💤' },
         { name: 'Morning', emoji: '🌅' },
@@ -114,12 +113,13 @@ function renderMobileView() {
         const phaseHabits = habits.filter(h => h.phase === phase.name);
         if (phaseHabits.length === 0) return;
 
-        // 1. The Large Phase Card
         const phaseCard = document.createElement('div');
-        phaseCard.className = 'mobile-phase-card';
+        // Apply phase class for the top border coloring
+        phaseCard.className = `mobile-phase-card phase-${phase.name}`;
 
         const phaseHeader = document.createElement('div');
-        phaseHeader.className = 'mobile-phase-header';
+        // Apply phase text class for the text coloring
+        phaseHeader.className = `mobile-phase-header phase-text-${phase.name}`;
         phaseHeader.textContent = `${phase.emoji} ${phase.name}`;
         phaseCard.appendChild(phaseHeader);
 
@@ -128,7 +128,6 @@ function renderMobileView() {
         categories.forEach(catName => {
             const catHabits = phaseHabits.filter(h => h.category === catName);
 
-            // 2. The Category Wrapper inside the Phase Card
             const catSection = document.createElement('div');
             catSection.className = 'mobile-category-section';
 
@@ -137,15 +136,18 @@ function renderMobileView() {
             catTitle.textContent = catName;
             catSection.appendChild(catTitle);
 
-            // 3. The wrapping flex container for compact habits
             const habitsWrap = document.createElement('div');
             habitsWrap.className = 'mobile-habits-wrap';
+
+            // Get the desktop category color class
+            const catClass = getCategoryClass(catName);
 
             catHabits.forEach(h => {
                 const isBoolean = h.type === 'boolean';
                 
                 const habitItem = document.createElement('div');
-                habitItem.className = `mobile-habit-item ${isBoolean ? 'boolean-type' : 'input-type'}`;
+                // INJECT DESKTOP CATEGORY CLASS HERE
+                habitItem.className = `mobile-habit-item ${catClass} ${isBoolean ? 'boolean-type' : 'input-type'}`;
 
                 const nameEl = document.createElement('span');
                 nameEl.className = 'mobile-habit-name';

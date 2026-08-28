@@ -212,7 +212,7 @@ button { cursor: pointer; }
     padding-bottom: 2.5rem;
 }
 
-/* 1. Large Phase Containers (Matching the provided image) */
+/* 1. Large Phase Containers (Now with Top Borders) */
 .mobile-phase-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -224,6 +224,12 @@ button { cursor: pointer; }
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
+/* Bind phase variables to the phase cards */
+.mobile-phase-card.phase-Sleep { border-top: 3px solid var(--phase-sleep); }
+.mobile-phase-card.phase-Morning { border-top: 3px solid var(--phase-morning); }
+.mobile-phase-card.phase-Middle { border-top: 3px solid var(--phase-middle); }
+.mobile-phase-card.phase-Evening { border-top: 3px solid var(--phase-evening); }
+
 .mobile-phase-header {
     font-size: 0.95rem;
     font-weight: 800;
@@ -232,10 +238,15 @@ button { cursor: pointer; }
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #f8fafc;
 }
 
-/* 2. Category Sections (Inside the Phase Card) */
+/* Bind phase variables to the header text */
+.mobile-phase-header.phase-text-Sleep { color: var(--phase-sleep); }
+.mobile-phase-header.phase-text-Morning { color: var(--phase-morning); }
+.mobile-phase-header.phase-text-Middle { color: var(--phase-middle); }
+.mobile-phase-header.phase-text-Evening { color: var(--phase-evening); }
+
+/* 2. Category Sections */
 .mobile-category-section {
     display: flex;
     flex-direction: column;
@@ -247,7 +258,8 @@ button { cursor: pointer; }
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #94a3b8;
+    color: var(--text);
+    opacity: 0.7;
     border-bottom: 1px solid var(--border);
     padding-bottom: 0.35rem;
     margin-bottom: 0.25rem;
@@ -256,19 +268,19 @@ button { cursor: pointer; }
 /* 3. Compact Stacked Habits */
 .mobile-habits-wrap {
     display: flex;
-    flex-wrap: wrap; /* Allows habits to stack side-by-side tightly */
+    flex-wrap: wrap; 
     gap: 0.5rem;
 }
 
 .mobile-habit-item {
-    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 0.35rem 0.5rem;
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    flex-grow: 1; /* Fills empty space dynamically */
+    flex-grow: 1; 
+    /* The desktop .cat-[Name] background colors will now take effect here! */
 }
 
 /* Booleans stay compact, Inputs take full width */
