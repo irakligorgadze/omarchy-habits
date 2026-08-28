@@ -62,6 +62,16 @@
         <div class="sheet-wrapper">
             <table id="grid-table" class="sheet-table"></table>
         </div>
+
+        <!-- Mobile Dedicated Today/Date View -->
+        <div id="mobile-view" class="hidden">
+            <div class="mobile-date-nav">
+                <button id="mobile-prev-day" class="btn-secondary">&larr;</button>
+                <h2 id="mobile-date-title">Today</h2>
+                <button id="mobile-next-day" class="btn-secondary">&rarr;</button>
+            </div>
+            <div id="mobile-habits-list" class="mobile-habits-container"></div>
+        </div>
     </div>
     <script>
         if ('serviceWorker' in navigator) {

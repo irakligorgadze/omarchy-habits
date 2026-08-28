@@ -1,4 +1,5 @@
 let gridData = { habits: [], dates: [], logs: [] };
+let mobileSelectedDateIndex = null;
 
 function initSelectors() {
     const yearSelect = document.getElementById('year-select');
@@ -46,7 +47,6 @@ async function loadGrid() {
         try {
             const res = await fetch(`/api/grid?year=${year}&month=${month}`);
             gridData = await res.json();
-            // Cache locally for offline viewing
             localStorage.setItem('cached_grid_' + year + '_' + month, JSON.stringify(gridData));
         } catch (e) {
             loadFromLocalCache(year, month);
@@ -54,7 +54,15 @@ async function loadGrid() {
     } else {
         loadFromLocalCache(year, month);
     }
+    
+    if (gridData.dates && gridData.dates.length > 0 && mobileSelectedDateIndex === null) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const idx = gridData.dates.indexOf(todayStr);
+        mobileSelectedDateIndex = idx !== -1 ? idx : gridData.dates.length - 1;
+    }
+
     renderTable();
+    renderMobileView();
 }
 
 function loadFromLocalCache(year, month) {
@@ -68,7 +76,6 @@ function getCategoryClass(catName) {
     return 'cat-' + catName.replace(/\s+/g, '-');
 }
 
-// Helper to format "YYYY-MM-DD" into "Jun 1 (Mon)"
 function formatDateNice(dateString) {
   const [year, month, day] = dateString.split('-').map(Number);
   const dateObj = new Date(year, month - 1, day);
@@ -79,6 +86,86 @@ function formatDateNice(dateString) {
 
   return `${monthStr} ${dayNum} (${weekdayStr})`;
 }
+
+function renderMobileView() {
+    const container = document.getElementById('mobile-habits-list');
+    const titleEl = document.getElementById('mobile-date-title');
+    if (!container || !titleEl) return;
+
+    container.innerHTML = '';
+    const { habits, dates, logs } = gridData;
+    if (!habits || !dates || dates.length === 0) return;
+
+    if (mobileSelectedDateIndex >= dates.length) mobileSelectedDateIndex = dates.length - 1;
+    if (mobileSelectedDateIndex < 0) mobileSelectedDateIndex = 0;
+
+    const currentDStr = dates[mobileSelectedDateIndex];
+    titleEl.textContent = formatDateNice(currentDStr);
+
+    habits.forEach(h => {
+        const card = document.createElement('div');
+        card.className = 'mobile-habit-card';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'mobile-habit-info';
+
+        const phaseEl = document.createElement('span');
+        phaseEl.className = 'mobile-habit-phase';
+        phaseEl.textContent = `${h.phase} • ${h.category}`;
+        infoDiv.appendChild(phaseEl);
+
+        const nameEl = document.createElement('span');
+        nameEl.className = 'mobile-habit-name';
+        nameEl.textContent = h.name;
+        infoDiv.appendChild(nameEl);
+
+        card.appendChild(infoDiv);
+
+        const log = logs.find(l => l.habit_id === h.id && l.date === currentDStr);
+        const val = log ? log.value : '';
+
+        if (h.type === 'boolean') {
+            const btn = document.createElement('button');
+            btn.className = `mobile-habit-control ${val === '✓' ? 'state-yes' : (val === '✗' ? 'state-no' : (val === '-' ? 'state-skip' : ''))}`;
+            btn.textContent = val || '+';
+
+            btn.onclick = () => {
+                let next = '✓';
+                if (val === '✓') next = '✗';
+                else if (val === '✗') next = '-';
+                else if (val === '-') next = '';
+                saveLog(h.id, currentDStr, next);
+                renderMobileView();
+            };
+            card.appendChild(btn);
+        } else {
+            const input = document.createElement('input');
+            input.className = 'cell-input mobile-habit-control';
+            input.value = val;
+            input.onblur = (e) => {
+                saveLog(h.id, currentDStr, e.target.value);
+            };
+            input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); };
+            card.appendChild(input);
+        }
+
+        container.appendChild(card);
+    });
+}
+
+document.getElementById('mobile-prev-day').onclick = () => {
+    if (mobileSelectedDateIndex > 0) {
+        mobileSelectedDateIndex--;
+        renderMobileView();
+    }
+};
+
+document.getElementById('mobile-next-day').onclick = () => {
+    if (gridData.dates && mobileSelectedDateIndex < gridData.dates.length - 1) {
+        mobileSelectedDateIndex++;
+        renderMobileView();
+    }
+};
 
 function renderTable() {
     const table = document.getElementById('grid-table');
@@ -100,7 +187,6 @@ function renderTable() {
     dates.forEach(dStr => {
         const th = document.createElement('th');
         th.className = 'date-header';
-        // Updated to use your preferred format: "Jun 1 (Mon)"
         th.textContent = formatDateNice(dStr);
         headerRow.appendChild(th);
     });
@@ -197,7 +283,6 @@ function computeSummary(type, values) {
 }
 
 async function saveLog(habit_id, date, value) {
-    // 1. Update local UI & data state immediately
     let existing = gridData.logs.find(l => l.habit_id === habit_id && l.date === date);
     if (existing) {
         existing.value = value;
@@ -208,9 +293,10 @@ async function saveLog(habit_id, date, value) {
     const year = document.getElementById('year-select').value;
     const month = document.getElementById('month-select').value;
     localStorage.setItem('cached_grid_' + year + '_' + month, JSON.stringify(gridData));
+    
     renderTable();
+    renderMobileView();
 
-    // 2. Try sending to server, otherwise queue it up
     const payload = { habit_id, date, value };
     if (navigator.onLine) {
         try {
@@ -252,7 +338,6 @@ async function syncPendingChanges() {
     localStorage.setItem('sync_queue', JSON.stringify(remainingQueue));
 }
 
-// Habit creation handlers
 document.getElementById('save-habit-btn').onclick = async () => {
     const name = document.getElementById('habit-name').value;
     const phase = document.getElementById('habit-phase').value;
