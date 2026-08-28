@@ -4,80 +4,86 @@ const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
 
-if (!fs.existsSync('data')) {
-  fs.mkdirSync('data', { recursive: true });
-}
-
 const app = express();
-const db = new Database('data/habits.db');
-
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-db.exec(`
-  CREATE TABLE IF NOT EXISTS habits (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    phase TEXT NOT NULL,
-    category TEXT NOT NULL,
-    name TEXT NOT NULL,
-    type TEXT NOT NULL DEFAULT 'boolean',
-    sort_order INTEGER DEFAULT 0
-  );
-  CREATE TABLE IF NOT EXISTS habit_logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    habit_id INTEGER,
-    date TEXT NOT NULL,
-    value TEXT NOT NULL,
-    FOREIGN KEY(habit_id) REFERENCES habits(id),
-    UNIQUE(habit_id, date)
-  );
-`);
+let db;
+try {
+  if (!fs.existsSync('data')) {
+    fs.mkdirSync('data', { recursive: true });
+  }
 
-const existingCount = db.prepare('SELECT COUNT(*) as count FROM habits').get().count;
-if (existingCount === 0) {
-  const seedStmt = db.prepare('INSERT INTO habits (phase, category, name, type, sort_order) VALUES (?, ?, ?, ?, ?)');
-  
-  const habitsList = [
-    // --- SLEEP ---
-    ['Sleep', 'Sleep', 'Screens Off', 'time', 1],
-    ['Sleep', 'Sleep', 'Bed', 'time', 2],
-    ['Sleep', 'Sleep', 'Wake', 'time', 3],
-    ['Sleep', 'Sleep', 'Sleep Opp', 'duration', 4],
-    ['Sleep', 'Sleep', 'Snore Score', 'percentage', 5],
+  db = new Database('data/habits.db');
 
-    // --- MORNING ---
-    ['Morning', 'Supplements', 'B12', 'boolean', 6],
-    ['Morning', 'Supplements', 'Flax', 'boolean', 7],
-    ['Morning', 'Meditation', 'Sit 1', 'boolean', 8],
-    ['Morning', 'Meditation', 'Walk 1', 'boolean', 9],
-    ['Morning', 'Meditation', 'Sit 2', 'boolean', 10],
-    ['Morning', 'Journal', 'Declutter Mind', 'boolean', 11],
-    ['Morning', 'Journal', 'Plan', 'boolean', 12],
-    ['Morning', 'Journal', 'Track', 'boolean', 13],
-    ['Morning', 'Journal', 'Open Todoist', 'boolean', 14],
-    ['Morning', 'Dopamine Detox', 'Physical Labor', 'boolean', 15],
-    ['Morning', 'Dopamine Detox', 'No PMO', 'boolean', 16],
-    ['Morning', 'Kitchen', 'Cook', 'boolean', 17],
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS habits (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      phase TEXT NOT NULL,
+      category TEXT NOT NULL,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL DEFAULT 'boolean',
+      sort_order INTEGER DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS habit_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      habit_id INTEGER,
+      date TEXT NOT NULL,
+      value TEXT NOT NULL,
+      FOREIGN KEY(habit_id) REFERENCES habits(id),
+      UNIQUE(habit_id, date)
+    );
+  `);
 
-    // --- MIDDLE ---
-    ['Middle', 'Meditation', '25/5 Split Sit', 'boolean', 18],
-    ['Middle', 'Dopamine Detox', 'PC Work (Pre-Read)', 'boolean', 19],
-    ['Middle', 'Dopamine Detox', 'Just Read (Post-PC)', 'boolean', 20],
-    ['Middle', 'Dopamine Detox', 'No PMO', 'boolean', 21],
-    ['Middle', 'Dopamine Detox', 'Just Eat', 'boolean', 22],
+  const existingCount = db.prepare('SELECT COUNT(*) as count FROM habits').get().count;
+  if (existingCount === 0) {
+    const seedStmt = db.prepare('INSERT INTO habits (phase, category, name, type, sort_order) VALUES (?, ?, ?, ?, ?)');
+    
+    const habitsList = [
+      // --- SLEEP ---
+      ['Sleep', 'Sleep', 'Screens Off', 'time', 1],
+      ['Sleep', 'Sleep', 'Bed', 'time', 2],
+      ['Sleep', 'Sleep', 'Wake', 'time', 3],
+      ['Sleep', 'Sleep', 'Sleep Opp', 'duration', 4],
+      ['Sleep', 'Sleep', 'Snore Score', 'percentage', 5],
 
-    // --- EVENING ---
-    ['Evening', 'Journal', 'Track', 'boolean', 23],
-    ['Evening', 'Journal', 'PTT', 'boolean', 24],
-    ['Evening', 'Meditation', 'Sit 3', 'boolean', 25],
-    ['Evening', 'Meditation', 'Walk 2', 'boolean', 26],
-    ['Evening', 'Meditation', 'Sit 4', 'boolean', 27],
-    ['Evening', 'Dopamine Detox', 'Just Read', 'boolean', 28],
-    ['Evening', 'Dopamine Detox', 'No PMO', 'boolean', 29]
-  ];
+      // --- MORNING ---
+      ['Morning', 'Supplements', 'B12', 'boolean', 6],
+      ['Morning', 'Supplements', 'Flax', 'boolean', 7],
+      ['Morning', 'Meditation', 'Sit 1', 'boolean', 8],
+      ['Morning', 'Meditation', 'Walk 1', 'boolean', 9],
+      ['Morning', 'Meditation', 'Sit 2', 'boolean', 10],
+      ['Morning', 'Journal', 'Declutter Mind', 'boolean', 11],
+      ['Morning', 'Journal', 'Plan', 'boolean', 12],
+      ['Morning', 'Journal', 'Track', 'boolean', 13],
+      ['Morning', 'Journal', 'Open Todoist', 'boolean', 14],
+      ['Morning', 'Dopamine Detox', 'Physical Labor', 'boolean', 15],
+      ['Morning', 'Dopamine Detox', 'No PMO', 'boolean', 16],
+      ['Morning', 'Kitchen', 'Cook', 'boolean', 17],
 
-  habitsList.forEach(h => seedStmt.run(...h));
+      // --- MIDDLE ---
+      ['Middle', 'Meditation', '25/5 Split Sit', 'boolean', 18],
+      ['Middle', 'Dopamine Detox', 'PC Work (Pre-Read)', 'boolean', 19],
+      ['Middle', 'Dopamine Detox', 'Just Read (Post-PC)', 'boolean', 20],
+      ['Middle', 'Dopamine Detox', 'No PMO', 'boolean', 21],
+      ['Middle', 'Dopamine Detox', 'Just Eat', 'boolean', 22],
+
+      // --- EVENING ---
+      ['Evening', 'Journal', 'Track', 'boolean', 23],
+      ['Evening', 'Journal', 'PTT', 'boolean', 24],
+      ['Evening', 'Meditation', 'Sit 3', 'boolean', 25],
+      ['Evening', 'Meditation', 'Walk 2', 'boolean', 26],
+      ['Evening', 'Meditation', 'Sit 4', 'boolean', 27],
+      ['Evening', 'Dopamine Detox', 'Just Read', 'boolean', 28],
+      ['Evening', 'Dopamine Detox', 'No PMO', 'boolean', 29]
+    ];
+
+    habitsList.forEach(h => seedStmt.run(...h));
+  }
+} catch (err) {
+  console.error("FATAL STARTUP EXCEPTION:", err);
+  process.exit(1);
 }
 
 app.get('/api/grid', (req, res) => {
