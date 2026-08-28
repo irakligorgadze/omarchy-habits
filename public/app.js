@@ -68,6 +68,18 @@ function getCategoryClass(catName) {
     return 'cat-' + catName.replace(/\s+/g, '-');
 }
 
+// Helper to format "YYYY-MM-DD" into "Jun 1 (Mon)"
+function formatDateNice(dateString) {
+  const [year, month, day] = dateString.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
+
+  const monthStr = dateObj.toLocaleString('en-US', { month: 'short' });
+  const dayNum = dateObj.getDate();
+  const weekdayStr = dateObj.toLocaleString('en-US', { weekday: 'short' });
+
+  return `${monthStr} ${dayNum} (${weekdayStr})`;
+}
+
 function renderTable() {
     const table = document.getElementById('grid-table');
     table.innerHTML = '';
@@ -88,8 +100,8 @@ function renderTable() {
     dates.forEach(dStr => {
         const th = document.createElement('th');
         th.className = 'date-header';
-        const dObj = new Date(dStr + 'T00:00:00');
-        th.textContent = dObj.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', weekday: 'narrow' });
+        // Updated to use your preferred format: "Jun 1 (Mon)"
+        th.textContent = formatDateNice(dStr);
         headerRow.appendChild(th);
     });
 
