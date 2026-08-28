@@ -187,7 +187,7 @@ button { cursor: pointer; }
     .col-habit { width: 110px; left: 155px; }
 }
 
-/* Mobile Today/Date View Styles */
+/* Mobile Today/Date View Hierarchical Styles */
 .mobile-date-nav {
     display: flex;
     justify-content: space-between;
@@ -212,14 +212,18 @@ button { cursor: pointer; }
     padding-bottom: 2rem;
 }
 
-/* Phase Section Groups */
-.mobile-phase-section {
+/* Phase Container (Major Section) */
+.mobile-phase-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.5rem;
 }
 
-.mobile-phase-header {
+.mobile-phase-title {
     font-size: 0.7rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -227,20 +231,40 @@ button { cursor: pointer; }
     padding: 3px 8px;
     border-radius: 4px;
     color: #ffffff;
-    display: inline-block;
     align-self: flex-start;
+    margin: 0;
 }
 
-/* Phase Colors for Mobile Headers */
+/* Phase Colors */
 .m-phase-Sleep { background-color: var(--phase-sleep); }
 .m-phase-Morning { background-color: var(--phase-morning); }
 .m-phase-Middle { background-color: var(--phase-middle); }
 .m-phase-Evening { background-color: var(--phase-evening); }
 
-/* Grid for compact yes/no habits */
-.mobile-grid-group {
+/* Category Container (Nested Section) */
+.mobile-category-container {
+    background: rgba(0, 0, 0, 0.015);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.mobile-category-title {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin: 0 0 0.1rem 0;
+    opacity: 0.8;
+}
+
+/* Compact Grid for Habits within a Category */
+.mobile-habits-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 items side-by-side */
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.4rem;
 }
 
@@ -248,32 +272,19 @@ button { cursor: pointer; }
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 0.5rem 0.6rem;
+    padding: 0.45rem 0.55rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .mobile-habit-card.full-width {
-    grid-column: span 2; /* For non-boolean or inputs that need more room */
-}
-
-.mobile-habit-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.05rem;
-    overflow: hidden;
-}
-
-.mobile-habit-category {
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    grid-column: span 2;
 }
 
 .mobile-habit-name {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
@@ -281,10 +292,10 @@ button { cursor: pointer; }
 }
 
 .mobile-habit-control {
-    min-width: 36px;
-    height: 36px;
+    min-width: 32px;
+    height: 32px;
     border-radius: 6px;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 800;
     display: flex;
     align-items: center;
