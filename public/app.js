@@ -102,54 +102,90 @@ function renderMobileView() {
     const currentDStr = dates[mobileSelectedDateIndex];
     titleEl.textContent = formatDateNice(currentDStr);
 
-    habits.forEach(h => {
-        const card = document.createElement('div');
-        card.className = 'mobile-habit-card';
+    // Emojis mapping closely to image_b6d2e4.png style
+    const phaseConfig = [
+        { name: 'Sleep', emoji: '💤' },
+        { name: 'Morning', emoji: '🌅' },
+        { name: 'Middle', emoji: '☀️' },
+        { name: 'Evening', emoji: '🌙' }
+    ];
+    
+    phaseConfig.forEach(phase => {
+        const phaseHabits = habits.filter(h => h.phase === phase.name);
+        if (phaseHabits.length === 0) return;
 
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'mobile-habit-info';
+        // 1. The Large Phase Card
+        const phaseCard = document.createElement('div');
+        phaseCard.className = 'mobile-phase-card';
 
-        const phaseEl = document.createElement('span');
-        phaseEl.className = 'mobile-habit-phase';
-        phaseEl.textContent = `${h.phase} • ${h.category}`;
-        infoDiv.appendChild(phaseEl);
+        const phaseHeader = document.createElement('div');
+        phaseHeader.className = 'mobile-phase-header';
+        phaseHeader.textContent = `${phase.emoji} ${phase.name}`;
+        phaseCard.appendChild(phaseHeader);
 
-        const nameEl = document.createElement('span');
-        nameEl.className = 'mobile-habit-name';
-        nameEl.textContent = h.name;
-        infoDiv.appendChild(nameEl);
+        const categories = [...new Set(phaseHabits.map(h => h.category))];
 
-        card.appendChild(infoDiv);
+        categories.forEach(catName => {
+            const catHabits = phaseHabits.filter(h => h.category === catName);
 
-        const log = logs.find(l => l.habit_id === h.id && l.date === currentDStr);
-        const val = log ? log.value : '';
+            // 2. The Category Wrapper inside the Phase Card
+            const catSection = document.createElement('div');
+            catSection.className = 'mobile-category-section';
 
-        if (h.type === 'boolean') {
-            const btn = document.createElement('button');
-            btn.className = `mobile-habit-control ${val === '✓' ? 'state-yes' : (val === '✗' ? 'state-no' : (val === '-' ? 'state-skip' : ''))}`;
-            btn.textContent = val || '+';
+            const catTitle = document.createElement('div');
+            catTitle.className = 'mobile-category-title';
+            catTitle.textContent = catName;
+            catSection.appendChild(catTitle);
 
-            btn.onclick = () => {
-                let next = '✓';
-                if (val === '✓') next = '✗';
-                else if (val === '✗') next = '-';
-                else if (val === '-') next = '';
-                saveLog(h.id, currentDStr, next);
-                renderMobileView();
-            };
-            card.appendChild(btn);
-        } else {
-            const input = document.createElement('input');
-            input.className = 'cell-input mobile-habit-control';
-            input.value = val;
-            input.onblur = (e) => {
-                saveLog(h.id, currentDStr, e.target.value);
-            };
-            input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); };
-            card.appendChild(input);
-        }
+            // 3. The wrapping flex container for compact habits
+            const habitsWrap = document.createElement('div');
+            habitsWrap.className = 'mobile-habits-wrap';
 
-        container.appendChild(card);
+            catHabits.forEach(h => {
+                const isBoolean = h.type === 'boolean';
+                
+                const habitItem = document.createElement('div');
+                habitItem.className = `mobile-habit-item ${isBoolean ? 'boolean-type' : 'input-type'}`;
+
+                const nameEl = document.createElement('span');
+                nameEl.className = 'mobile-habit-name';
+                nameEl.textContent = h.name;
+                habitItem.appendChild(nameEl);
+
+                const log = logs.find(l => l.habit_id === h.id && l.date === currentDStr);
+                const val = log ? log.value : '';
+
+                if (isBoolean) {
+                    const btn = document.createElement('button');
+                    btn.className = `mobile-habit-control ${val === '✓' ? 'state-yes' : (val === '✗' ? 'state-no' : (val === '-' ? 'state-skip' : ''))}`;
+                    btn.textContent = val || '+';
+
+                    btn.onclick = () => {
+                        let next = '✓';
+                        if (val === '✓') next = '✗';
+                        else if (val === '✗') next = '-';
+                        else if (val === '-') next = '';
+                        saveLog(h.id, currentDStr, next);
+                        renderMobileView();
+                    };
+                    habitItem.appendChild(btn);
+                } else {
+                    const input = document.createElement('input');
+                    input.className = 'cell-input mobile-habit-control';
+                    input.value = val;
+                    input.onblur = (e) => saveLog(h.id, currentDStr, e.target.value);
+                    input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); };
+                    habitItem.appendChild(input);
+                }
+
+                habitsWrap.appendChild(habitItem);
+            });
+
+            catSection.appendChild(habitsWrap);
+            phaseCard.appendChild(catSection);
+        });
+
+        container.appendChild(phaseCard);
     });
 }
 

@@ -187,132 +187,125 @@ button { cursor: pointer; }
     .col-habit { width: 110px; left: 155px; }
 }
 
-/* Mobile Today/Date View Hierarchical Styles */
+/* Mobile Today/Date View - Replicating image_b6d2e4.png structure */
 .mobile-date-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: var(--surface);
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
     border: 1px solid var(--border);
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .mobile-date-nav h2 {
     margin: 0;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 700;
 }
 
 .mobile-habits-container {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding-bottom: 2rem;
+    gap: 1rem;
+    padding-bottom: 2.5rem;
 }
 
-/* Phase Container (Major Section) */
-.mobile-phase-container {
+/* 1. Large Phase Containers (Matching the provided image) */
+.mobile-phase-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.6rem;
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.mobile-phase-header {
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #f8fafc;
+}
+
+/* 2. Category Sections (Inside the Phase Card) */
+.mobile-category-section {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.mobile-phase-title {
+.mobile-category-title {
     font-size: 0.7rem;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 3px 8px;
-    border-radius: 4px;
-    color: #ffffff;
-    align-self: flex-start;
-    margin: 0;
+    color: #94a3b8;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.25rem;
 }
 
-/* Phase Colors */
-.m-phase-Sleep { background-color: var(--phase-sleep); }
-.m-phase-Morning { background-color: var(--phase-morning); }
-.m-phase-Middle { background-color: var(--phase-middle); }
-.m-phase-Evening { background-color: var(--phase-evening); }
-
-/* Category Container (Nested Section) */
-.mobile-category-container {
-    background: rgba(0, 0, 0, 0.015);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.5rem;
+/* 3. Compact Stacked Habits */
+.mobile-habits-wrap {
     display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    flex-wrap: wrap; /* Allows habits to stack side-by-side tightly */
+    gap: 0.5rem;
 }
 
-.mobile-category-title {
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    margin: 0 0 0.1rem 0;
-    opacity: 0.8;
-}
-
-/* Compact Grid for Habits within a Category */
-.mobile-habits-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.4rem;
-}
-
-.mobile-habit-card {
-    background: var(--surface);
+.mobile-habit-item {
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.45rem 0.55rem;
+    border-radius: 8px;
+    padding: 0.35rem 0.5rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    gap: 0.6rem;
+    flex-grow: 1; /* Fills empty space dynamically */
 }
 
-.mobile-habit-card.full-width {
-    grid-column: span 2;
-}
+/* Booleans stay compact, Inputs take full width */
+.mobile-habit-item.boolean-type { width: auto; justify-content: space-between; }
+.mobile-habit-item.input-type { width: 100%; justify-content: space-between; }
 
 .mobile-habit-name {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 600;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .mobile-habit-control {
-    min-width: 32px;
-    height: 32px;
+    min-width: 34px;
+    height: 34px;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--border);
-    flex-shrink: 0;
+    background: transparent;
+    color: var(--text);
+}
+
+.cell-input.mobile-habit-control {
+    width: 70px;
+    text-align: center;
+    background: rgba(0,0,0,0.2);
 }
 
 /* Automatic view switching via Media Query */
 @media(max-width: 768px) {
-    .sheet-wrapper {
-        display: none !important;
-    }
-    #mobile-view {
-        display: block !important;
-    }
-    body { padding: 0.4rem; }
+    .sheet-wrapper { display: none !important; }
+    #mobile-view { display: block !important; }
+    body { padding: 0.5rem; }
     header { flex-direction: row; justify-content: space-between; align-items: center; }
     #month-select, #year-select { display: none; }
 }
