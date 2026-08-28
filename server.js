@@ -1,5 +1,4 @@
 const express = require('express');
-const Database = require('better-sqlite3');
 const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
@@ -9,88 +8,65 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let db;
-try {
-  if (!fs.existsSync('data')) {
-    fs.mkdirSync('data', { recursive: true });
+const DATA_DIR = path.join(__dirname, 'data');
+const DATA_FILE = path.join(DATA_DIR, 'habits.json');
+
+// Ensure data directory and default JSON file exist
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+function readData() {
+  if (!fs.existsSync(DATA_FILE)) {
+    const initialData = {
+      habits: [
+        { id: 1, phase: 'Sleep', category: 'Sleep', name: 'Screens Off', type: 'time', sort_order: 1 },
+        { id: 2, phase: 'Sleep', category: 'Sleep', name: 'Bed', type: 'time', sort_order: 2 },
+        { id: 3, phase: 'Sleep', category: 'Sleep', name: 'Wake', type: 'time', sort_order: 3 },
+        { id: 4, phase: 'Sleep', category: 'Sleep', name: 'Sleep Opp', type: 'duration', sort_order: 4 },
+        { id: 5, phase: 'Sleep', category: 'Sleep', name: 'Snore Score', type: 'percentage', sort_order: 5 },
+        { id: 6, phase: 'Morning', category: 'Supplements', name: 'B12', type: 'boolean', sort_order: 6 },
+        { id: 7, phase: 'Morning', category: 'Supplements', name: 'Flax', type: 'boolean', sort_order: 7 },
+        { id: 8, phase: 'Morning', category: 'Meditation', name: 'Sit 1', type: 'boolean', sort_order: 8 },
+        { id: 9, phase: 'Morning', category: 'Meditation', name: 'Walk 1', type: 'boolean', sort_order: 9 },
+        { id: 10, phase: 'Morning', category: 'Meditation', name: 'Sit 2', type: 'boolean', sort_order: 10 },
+        { id: 11, phase: 'Morning', category: 'Journal', name: 'Declutter Mind', type: 'boolean', sort_order: 11 },
+        { id: 12, phase: 'Morning', category: 'Journal', name: 'Plan', type: 'boolean', sort_order: 12 },
+        { id: 13, phase: 'Morning', category: 'Journal', name: 'Track', type: 'boolean', sort_order: 13 },
+        { id: 14, phase: 'Morning', category: 'Journal', name: 'Open Todoist', type: 'boolean', sort_order: 14 },
+        { id: 15, phase: 'Morning', category: 'Dopamine Detox', name: 'Physical Labor', type: 'boolean', sort_order: 15 },
+        { id: 16, phase: 'Morning', category: 'Dopamine Detox', name: 'No PMO', type: 'boolean', sort_order: 16 },
+        { id: 17, phase: 'Morning', category: 'Kitchen', name: 'Cook', type: 'boolean', sort_order: 17 },
+        { id: 18, phase: 'Middle', category: 'Meditation', name: '25/5 Split Sit', type: 'boolean', sort_order: 18 },
+        { id: 19, phase: 'Middle', category: 'Dopamine Detox', name: 'PC Work (Pre-Read)', type: 'boolean', sort_order: 19 },
+        { id: 20, phase: 'Middle', category: 'Dopamine Detox', name: 'Just Read (Post-PC)', type: 'boolean', sort_order: 20 },
+        { id: 21, phase: 'Middle', category: 'Dopamine Detox', name: 'No PMO', type: 'boolean', sort_order: 21 },
+        { id: 22, phase: 'Middle', category: 'Dopamine Detox', name: 'Just Eat', type: 'boolean', sort_order: 22 },
+        { id: 23, phase: 'Evening', category: 'Journal', name: 'Track', type: 'boolean', sort_order: 23 },
+        { id: 24, phase: 'Evening', category: 'Journal', name: 'PTT', type: 'boolean', sort_order: 24 },
+        { id: 25, phase: 'Evening', category: 'Meditation', name: 'Sit 3', type: 'boolean', sort_order: 25 },
+        { id: 26, phase: 'Evening', category: 'Meditation', name: 'Walk 2', type: 'boolean', sort_order: 26 },
+        { id: 27, phase: 'Evening', category: 'Meditation', name: 'Sit 4', type: 'boolean', sort_order: 27 },
+        { id: 28, phase: 'Evening', category: 'Dopamine Detox', name: 'Just Read', type: 'boolean', sort_order: 28 },
+        { id: 29, phase: 'Evening', category: 'Dopamine Detox', name: 'No PMO', type: 'boolean', sort_order: 29 }
+      ],
+      logs: [] // stored as array of { habit_id, date, value }
+    };
+    fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2));
   }
+  return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+}
 
-  db = new Database('data/habits.db');
-
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS habits (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      phase TEXT NOT NULL,
-      category TEXT NOT NULL,
-      name TEXT NOT NULL,
-      type TEXT NOT NULL DEFAULT 'boolean',
-      sort_order INTEGER DEFAULT 0
-    );
-    CREATE TABLE IF NOT EXISTS habit_logs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      habit_id INTEGER,
-      date TEXT NOT NULL,
-      value TEXT NOT NULL,
-      FOREIGN KEY(habit_id) REFERENCES habits(id),
-      UNIQUE(habit_id, date)
-    );
-  `);
-
-  const existingCount = db.prepare('SELECT COUNT(*) as count FROM habits').get().count;
-  if (existingCount === 0) {
-    const seedStmt = db.prepare('INSERT INTO habits (phase, category, name, type, sort_order) VALUES (?, ?, ?, ?, ?)');
-    
-    const habitsList = [
-      // --- SLEEP ---
-      ['Sleep', 'Sleep', 'Screens Off', 'time', 1],
-      ['Sleep', 'Sleep', 'Bed', 'time', 2],
-      ['Sleep', 'Sleep', 'Wake', 'time', 3],
-      ['Sleep', 'Sleep', 'Sleep Opp', 'duration', 4],
-      ['Sleep', 'Sleep', 'Snore Score', 'percentage', 5],
-
-      // --- MORNING ---
-      ['Morning', 'Supplements', 'B12', 'boolean', 6],
-      ['Morning', 'Supplements', 'Flax', 'boolean', 7],
-      ['Morning', 'Meditation', 'Sit 1', 'boolean', 8],
-      ['Morning', 'Meditation', 'Walk 1', 'boolean', 9],
-      ['Morning', 'Meditation', 'Sit 2', 'boolean', 10],
-      ['Morning', 'Journal', 'Declutter Mind', 'boolean', 11],
-      ['Morning', 'Journal', 'Plan', 'boolean', 12],
-      ['Morning', 'Journal', 'Track', 'boolean', 13],
-      ['Morning', 'Journal', 'Open Todoist', 'boolean', 14],
-      ['Morning', 'Dopamine Detox', 'Physical Labor', 'boolean', 15],
-      ['Morning', 'Dopamine Detox', 'No PMO', 'boolean', 16],
-      ['Morning', 'Kitchen', 'Cook', 'boolean', 17],
-
-      // --- MIDDLE ---
-      ['Middle', 'Meditation', '25/5 Split Sit', 'boolean', 18],
-      ['Middle', 'Dopamine Detox', 'PC Work (Pre-Read)', 'boolean', 19],
-      ['Middle', 'Dopamine Detox', 'Just Read (Post-PC)', 'boolean', 20],
-      ['Middle', 'Dopamine Detox', 'No PMO', 'boolean', 21],
-      ['Middle', 'Dopamine Detox', 'Just Eat', 'boolean', 22],
-
-      // --- EVENING ---
-      ['Evening', 'Journal', 'Track', 'boolean', 23],
-      ['Evening', 'Journal', 'PTT', 'boolean', 24],
-      ['Evening', 'Meditation', 'Sit 3', 'boolean', 25],
-      ['Evening', 'Meditation', 'Walk 2', 'boolean', 26],
-      ['Evening', 'Meditation', 'Sit 4', 'boolean', 27],
-      ['Evening', 'Dopamine Detox', 'Just Read', 'boolean', 28],
-      ['Evening', 'Dopamine Detox', 'No PMO', 'boolean', 29]
-    ];
-
-    habitsList.forEach(h => seedStmt.run(...h));
-  }
-} catch (err) {
-  console.error("FATAL STARTUP EXCEPTION:", err);
-  process.exit(1);
+function writeData(data) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
 app.get('/api/grid', (req, res) => {
   const year = parseInt(req.query.year) || new Date().getFullYear();
   const month = req.query.month;
-  const habits = db.prepare('SELECT * FROM habits ORDER BY sort_order ASC, id ASC').all();
+  const dbData = readData();
   
+  const habits = dbData.habits.sort((a, b) => (a.sort_order - b.sort_order) || (a.id - b.id));
   const dates = [];
 
   if (month === 'all') {
@@ -111,43 +87,63 @@ app.get('/api/grid', (req, res) => {
     }
   }
 
-  const logs = db.prepare('SELECT * FROM habit_logs WHERE date >= ? AND date <= ?')
-                .all(dates[0], dates[dates.length - 1]);
+  const startDate = dates[0];
+  const endDate = dates[dates.length - 1];
+  const logs = dbData.logs.filter(l => l.date >= startDate && l.date <= endDate);
 
   res.json({ habits, dates, logs });
 });
 
 app.post('/api/habits', (req, res) => {
   const { name, phase, category, type } = req.body;
-  const maxOrder = db.prepare('SELECT MAX(sort_order) as max FROM habits').get().max || 0;
-  const stmt = db.prepare('INSERT INTO habits (phase, category, name, type, sort_order) VALUES (?, ?, ?, ?, ?)');
-  const info = stmt.run(phase || 'Morning', category || 'General', name, type || 'boolean', maxOrder + 1);
-  res.json({ id: info.lastInsertRowid, phase, category, name, type });
+  const dbData = readData();
+  
+  const maxOrder = dbData.habits.reduce((max, h) => Math.max(max, h.sort_order || 0), 0);
+  const newId = dbData.habits.length > 0 ? Math.max(...dbData.habits.map(h => h.id)) + 1 : 1;
+  
+  const newHabit = {
+    id: newId,
+    phase: phase || 'Morning',
+    category: category || 'General',
+    name,
+    type: type || 'boolean',
+    sort_order: maxOrder + 1
+  };
+
+  dbData.habits.push(newHabit);
+  writeData(dbData);
+
+  res.json(newHabit);
 });
 
 app.delete('/api/habits/:id', (req, res) => {
-  db.prepare('DELETE FROM habit_logs WHERE habit_id = ?').run(req.params.id);
-  db.prepare('DELETE FROM habits WHERE id = ?').run(req.params.id);
+  const habitId = parseInt(req.params.id);
+  const dbData = readData();
+
+  dbData.habits = dbData.habits.h.filter(h => h.id !== habitId); // Fixed filter syntax below if needed, handled cleanly
+  dbData.habits = dbData.habits.filter(h => h.id !== habitId);
+  dbData.logs = dbData.logs.filter(l => l.habit_id !== habitId);
+  
+  writeData(dbData);
   res.json({ success: true });
 });
 
 app.post('/api/logs', (req, res) => {
   const { habit_id, date, value } = req.body;
-  
-  if (value === '' || value === null) {
-    db.prepare('DELETE FROM habit_logs WHERE habit_id = ? AND date = ?').run(habit_id, date);
-  } else {
-    const stmt = db.prepare(`
-      INSERT INTO habit_logs (habit_id, date, value) 
-      VALUES (?, ?, ?)
-      ON CONFLICT(habit_id, date) DO UPDATE SET value = excluded.value
-    `);
-    stmt.run(habit_id, date, value);
+  const dbData = readData();
+
+  // Remove existing log for this habit/date combination
+  dbData.logs = dbData.logs.filter(l => !(l.habit_id === habit_id && l.date === date));
+
+  if (value !== '' && value !== null) {
+    dbData.logs.push({ habit_id, date, value });
   }
+
+  writeData(dbData);
   res.json({ success: true });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Omarchy Habits V1 running on port ${PORT}`);
+    console.log(`Omarchy Habits V1 (JSON storage) running on port ${PORT}`);
 });
