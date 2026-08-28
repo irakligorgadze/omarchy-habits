@@ -1,18 +1,16 @@
-FROM node:20-slim
+FROM node:18-slim
 
-# Create app directory
+# Install python3 and build essentials just in case native modules need compilation
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 
-# Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install --build-from-source=better-sqlite3
 
-# Copy application source
 COPY . .
 
-# Create a directory for the persistent SQLite database
 RUN mkdir -p data
 
 EXPOSE 3000
-
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
