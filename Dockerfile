@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --build-from-source=better-sqlite3
+RUN npm install better-sqlite3 --build-from-source
 
 COPY . .
 
