@@ -230,14 +230,15 @@ button { cursor: pointer; }
 .mobile-phase-card.phase-Middle { border-top: 3px solid var(--phase-middle); }
 .mobile-phase-card.phase-Evening { border-top: 3px solid var(--phase-evening); }
 
-.mobile-phase-header {
-    font-size: 0.95rem;
-    font-weight: 800;
+..mobile-phase-header {
+    font-size: 1.35rem; /* Increased size significantly */
+    font-weight: 900; /* Extra bold */
     text-transform: uppercase;
     letter-spacing: 0.05em;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
+    color: #ffffff !important; /* Forces pure white text */
 }
 
 /* Bind phase variables to the header text */
