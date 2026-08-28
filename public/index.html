@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Matrix</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .sync-status { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        .sync-online { background: #dcfce7; color: #16a34a; }
+        .sync-offline { background: #fee2e2; color: #dc2626; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="brand">
+                <h1>Habit Matrix</h1>
+                <span id="connection-badge" class="sync-status sync-online">Online</span>
+                <select id="month-select">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                    <option value="all">All Months (Year Summary)</option>
+                </select>
+                <select id="year-select"></select>
+            </div>
+            
+            <div class="controls">
+                <button id="add-modal-btn" class="btn-primary">+ Habit</button>
+            </div>
+        </header>
+
+        <div id="add-modal" class="card add-form hidden">
+            <input type="text" id="habit-name" placeholder="Habit Name">
+            <select id="habit-phase">
+                <option value="Sleep">Sleep</option>
+                <option value="Morning">Morning</option>
+                <option value="Middle">Middle</option>
+                <option value="Evening">Evening</option>
+            </select>
+            <input type="text" id="habit-category" placeholder="Category">
+            <select id="habit-type">
+                <option value="boolean">Checkmark (✓ / ✗ / -)</option>
+                <option value="time">Time</option>
+                <option value="duration">Duration</option>
+                <option value="percentage">Percentage</option>
+            </select>
+            <button id="save-habit-btn" class="btn-primary">Save</button>
+            <button id="cancel-habit-btn" class="btn-secondary">Cancel</button>
+        </div>
+
+        <div class="sheet-wrapper">
+            <table id="grid-table" class="sheet-table"></table>
+        </div>
+    </div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed', err));
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>

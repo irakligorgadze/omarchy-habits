@@ -1,0 +1,188 @@
+:root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #0f172a;
+    --border: #cbd5e1;
+    --accent: #2563eb;
+
+    /* Phase Header Colors */
+    --phase-sleep: #334155;
+    --phase-morning: #15803d;
+    --phase-middle: #1d4ed8;
+    --phase-evening: #6b21a8;
+
+    /* Category Inherited Theme Colors (All Light & Consistent) */
+    --cat-meditation-bg: #fee2e2;
+    --cat-meditation-txt: #dc2626;
+
+    --cat-journal-bg: #eff6ff;
+    --cat-journal-txt: #2563eb;
+
+    --cat-supplements-bg: #dcfce7;
+    --cat-supplements-txt: #16a34a;
+
+    --cat-detox-bg: #dbeafe;        /* Updated to lighter blue */
+    --cat-detox-txt: #1e40af;       /* Updated to matching dark blue text */
+
+    --cat-kitchen-bg: #fef9c3;
+    --cat-kitchen-txt: #854d0e;
+
+    --cat-sleep-bg: #334155;
+    --cat-sleep-txt: #ffffff;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    padding: 0.5rem;
+}
+
+.app-container { max-width: 100%; }
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.brand { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+h1 { margin: 0; font-size: 1.1rem; font-weight: 800; }
+
+select, input, button {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+button { cursor: pointer; }
+.btn-primary { background: var(--accent); color: #ffffff; border: none; }
+.btn-secondary { background: #e2e8f0; color: #0f172a; border: none; }
+.hidden { display: none !important; }
+
+.add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    background: var(--surface);
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.sheet-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    max-height: 82vh;
+    background: #ffffff;
+}
+
+.sheet-table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.sheet-table th, .sheet-table td {
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    white-space: nowrap;
+    min-width: 65px;
+}
+
+.sticky-header {
+    position: sticky;
+    z-index: 10;
+    font-weight: bold;
+    text-align: left;
+}
+
+.col-phase { left: 0; z-index: 13; width: 80px; border-right: 2px solid var(--border); }
+.col-category { left: 80px; z-index: 12; width: 110px; border-right: 2px solid var(--border); }
+.col-habit { left: 190px; z-index: 11; width: 130px; border-right: 2px solid var(--accent); }
+
+/* Phase Header Colors */
+.phase-Sleep { background-color: var(--phase-sleep) !important; color: #ffffff; }
+.phase-Morning { background-color: var(--phase-morning) !important; color: #ffffff; }
+.phase-Middle { background-color: var(--phase-middle) !important; color: #ffffff; }
+.phase-Evening { background-color: var(--phase-evening) !important; color: #ffffff; }
+
+/* Dynamic Category Colors Applied to Categories and Habits */
+.cat-Meditation { background-color: var(--cat-meditation-bg) !important; color: var(--cat-meditation-txt) !important; }
+.cat-Journal { background-color: var(--cat-journal-bg) !important; color: var(--cat-journal-txt) !important; }
+.cat-Supplements { background-color: var(--cat-supplements-bg) !important; color: var(--cat-supplements-txt) !important; }
+.cat-Dopamine-Detox { background-color: var(--cat-detox-bg) !important; color: var(--cat-detox-txt) !important; }
+.cat-Kitchen { background-color: var(--cat-kitchen-bg) !important; color: var(--cat-kitchen-txt) !important; }
+.cat-Sleep { background-color: var(--phase-sleep) !important; color: #ffffff !important; }
+
+.date-header {
+    background: #e2e8f0;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.summary-header {
+    position: sticky;
+    right: 0;
+    background: #0f172a;
+    font-weight: bold;
+    z-index: 5;
+    border-left: 2px solid var(--accent);
+    color: #ffffff;
+}
+
+.summary-cell {
+    position: sticky;
+    right: 0;
+    background: #f8fafc;
+    font-weight: bold;
+    z-index: 4;
+    border-left: 2px solid var(--accent);
+    color: #1d4ed8;
+}
+
+.cell-boolean {
+    cursor: pointer;
+    user-select: none;
+    font-weight: 800;
+    font-size: 1rem;
+    height: 36px;
+}
+.cell-boolean.state-yes { color: #16a34a; background: #dcfce7; }
+.cell-boolean.state-no { color: #dc2626; background: #fee2e2; }
+.cell-boolean.state-skip { color: #64748b; background: #f1f5f9; }
+
+.cell-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #0f172a;
+    text-align: center;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+}
+
+@media(max-width: 768px) {
+    body { padding: 0.2rem; }
+    header { flex-direction: column; align-items: stretch; }
+    .brand { justify-content: space-between; }
+    .sheet-table th, .sheet-table td { padding: 8px 6px; min-width: 55px; font-size: 0.75rem; }
+    .col-phase { width: 65px; left: 0; }
+    .col-category { width: 90px; left: 65px; }
+    .col-habit { width: 110px; left: 155px; }
+}
