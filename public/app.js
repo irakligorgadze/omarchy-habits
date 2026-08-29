@@ -39,6 +39,40 @@ function updateConnectionStatus() {
     }
 }
 
+// Reusable time formatter and save handler
+function handleInputBlur(e, habitId, dateStr) {
+    let raw = e.target.value.trim().toLowerCase();
+    let val = e.target.value.trim();
+
+    if (raw) {
+        // Matches: 5pm, 5am, 5:30pm, 5p, 5:15 am, 5 p.m.
+        const ampmMatch = raw.match(/^(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m?\.?$/);
+        // Matches: 17:00, 5:30, 17, 5
+        const time24Match = raw.match(/^(\d{1,2})(?::(\d{2}))?$/);
+
+        if (ampmMatch) {
+            let h = parseInt(ampmMatch[1], 10);
+            let m = ampmMatch[2] || '00';
+            let period = ampmMatch[3] === 'p' ? 'PM' : 'AM';
+            if (h > 12) h = h % 12 || 12;
+            if (h === 0) h = 12;
+            val = `${h}:${m} ${period}`;
+        } else if (time24Match) {
+            let h = parseInt(time24Match[1], 10);
+            let m = time24Match[2] || '00';
+            if (h >= 0 && h <= 23) {
+                let period = h >= 12 ? 'PM' : 'AM';
+                if (h >= 12) h = h > 12 ? h - 12 : 12;
+                if (h === 0) h = 12;
+                val = `${h}:${m} ${period}`;
+            }
+        }
+    }
+
+    e.target.value = val;
+    saveLog(habitId, dateStr, val);
+}
+
 async function loadGrid() {
     const year = document.getElementById('year-select').value;
     const month = document.getElementById('month-select').value;
@@ -114,11 +148,9 @@ function renderMobileView() {
         if (phaseHabits.length === 0) return;
 
         const phaseCard = document.createElement('div');
-        // Apply phase class for the top border coloring
         phaseCard.className = `mobile-phase-card phase-${phase.name}`;
 
         const phaseHeader = document.createElement('div');
-        // Apply phase text class for the text coloring
         phaseHeader.className = `mobile-phase-header phase-text-${phase.name}`;
         phaseHeader.textContent = `${phase.emoji} ${phase.name}`;
         phaseCard.appendChild(phaseHeader);
@@ -139,14 +171,12 @@ function renderMobileView() {
             const habitsWrap = document.createElement('div');
             habitsWrap.className = 'mobile-habits-wrap';
 
-            // Get the desktop category color class
             const catClass = getCategoryClass(catName);
 
             catHabits.forEach(h => {
                 const isBoolean = h.type === 'boolean';
                 
                 const habitItem = document.createElement('div');
-                // INJECT DESKTOP CATEGORY CLASS HERE
                 habitItem.className = `mobile-habit-item ${catClass} ${isBoolean ? 'boolean-type' : 'input-type'}`;
 
                 const nameEl = document.createElement('span');
@@ -175,7 +205,7 @@ function renderMobileView() {
                     const input = document.createElement('input');
                     input.className = 'cell-input mobile-habit-control';
                     input.value = val;
-                    input.onblur = (e) => saveLog(h.id, currentDStr, e.target.value);
+                    input.onblur = (e) => handleInputBlur(e, h.id, currentDStr);
                     input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); };
                     habitItem.appendChild(input);
                 }
@@ -293,7 +323,7 @@ function renderTable() {
                 const input = document.createElement('input');
                 input.className = 'cell-input';
                 input.value = val;
-                input.onblur = (e) => saveLog(h.id, dStr, e.target.value);
+                input.onblur = (e) => handleInputBlur(e, h.id, dStr);
                 input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); };
                 td.appendChild(input);
             }
